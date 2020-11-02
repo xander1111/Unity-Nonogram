@@ -14,6 +14,7 @@ public class Board : MonoBehaviour
 
     void Start()
     {
+        // Determines whether to scale the board for vertical size or horizontal
         if (boardWidth > boardHeight)
         {
             _sqScale = 30 / boardWidth;
@@ -26,7 +27,7 @@ public class Board : MonoBehaviour
         tile.transform.localScale = new Vector2(_sqScale, _sqScale);
 
 
-        // sqRelScale gotten from sprite UNIT size (pixels / pixels per unit) times object scale
+        // sqRelScale gotten from (tile sprite size * scale)
         _sqRelScale =  (0.2f * tile.transform.localScale.x);
 
         for (float i = 0; i < boardHeight; i++)
