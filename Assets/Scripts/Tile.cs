@@ -8,62 +8,65 @@ public class Tile : MonoBehaviour
     public Sprite filled;
     public Sprite x;
 
+    //Indicates the state to be solved
     public int solved;
-
+    //Indicates the current state
+    public int state = 0;
     /*
      *  _state ids:
      *   0: empty
      *  -1: x
      *  1: filled
      */
-    [SerializeField]
-    private int _state = 0;
+
     private SpriteRenderer _sr;
+    private GameManager _gm;
 
 
-    private void Start()
+    private void Awake()
     {
         _sr = this.GetComponent<SpriteRenderer>();
+        _gm = FindObjectOfType<GameManager>();
     }
 
 
 
     private void OnMouseOver()
     {
-        //
+        //Checks for left click
         if (Input.GetMouseButtonDown(0))
         {
-            if (_state != 0)
+            //Resets the tile if state isnt empty already
+            if (state != 0)
             {
-                _state = 0;
+                state = 0;
                 _sr.sprite = empty;
             }
             else
+            //Sets the tile state to filled
             {
-                _state = 1;
+                state = 1;
                 _sr.sprite = filled;
-
             }
+
+            //Checks whether the puzzle has been solved
+            _gm.CheckIfSolved();
         } 
+        //Repeats process for right click
         else if (Input.GetMouseButtonDown(1))
         {
-            if (_state != 0)
+            if (state != 0)
             {
-                _state = 0;
+                state = 0;
                 _sr.sprite = empty;
             }
             else
             {
-                _state = -1;
+                state = -1;
                 _sr.sprite = x;
             }
+
+            _gm.CheckIfSolved();
         }
-    }
-
-    public void GeneratePuzzle()
-    {
-        //Randomizes solved state for this tile only
-        solved = Random.Range(-1, 1);
-
     }
 }

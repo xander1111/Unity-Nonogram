@@ -12,7 +12,7 @@ public class Board : MonoBehaviour
     private float _sqScale = 1.0f;
 
 
-    void Start()
+    void Awake()
     {
         // Determines whether to scale the board for vertical size or horizontal
         if (boardWidth > boardHeight)
@@ -39,6 +39,9 @@ public class Board : MonoBehaviour
             //Makes each row
             CreateRow(boardWidth, boardHorizOffset, i - boardVertOffset);
         }
+
+
+        GeneratePuzzle();
     }
 
 
@@ -51,7 +54,39 @@ public class Board : MonoBehaviour
 
             Vector2 tilePosition = new Vector2(horizPos, vertPos);
 
-            Instantiate(tile, tilePosition , transform.rotation, this.transform);
+            Instantiate(tile, tilePosition, transform.rotation, this.transform);
+        }
+    }
+
+
+    private List<Tile> GetAllTiles()
+    {
+        //Creates a list of all tiles
+        List<Tile> tiles = new List<Tile>();
+            
+        for (int i = 0; i < this.transform.childCount; i++)
+        {
+            tiles.Add(this.transform.GetChild(i).GetComponent<Tile>());
+        }
+
+        return tiles;
+    }
+
+    
+    private void GeneratePuzzle()
+    {
+        //Generates a random value for solved variable on every tile
+        foreach (Tile tiles in GetAllTiles())
+        {
+            int solved = Random.Range(0, 2);
+            if (solved == 0)
+            {
+                tiles.solved = -1;
+            }
+            else
+            {
+                tiles.solved = 1;
+            }
         }
     }
 }
