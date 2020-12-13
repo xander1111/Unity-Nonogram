@@ -8,12 +8,12 @@ public class Tile : MonoBehaviour
     public Sprite filled;
     public Sprite x;
 
-    //Indicates the state to be solved
+    // Indicates the solved state for this tile
     public int solved;
-    //Indicates the current state
+    // Indicates the tiles current state
     public int state = 0;
     /*
-     *  _state ids:
+     *  state ids:
      *   0: empty
      *  -1: x
      *  1: filled
@@ -28,7 +28,6 @@ public class Tile : MonoBehaviour
         _sr = this.GetComponent<SpriteRenderer>();
         _gm = FindObjectOfType<GameManager>();
     }
-
 
 
     private void OnMouseOver()

@@ -8,17 +8,20 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        
         _tiles = FindObjectsOfType<Tile>();
     }
 
 
-    //Checks each tile to see if its solved or not
-    public void CheckIfSolved()
+    // Checks each tile to see if its solved or not
+    public bool CheckIfSolved()
     {
+        bool solved = false;
+
         foreach (Tile tile in _tiles)
         {
-            bool solved = tile.solved == tile.state;
+            solved = tile.solved == tile.state;
         }
+
+        return solved;
     }
 }
