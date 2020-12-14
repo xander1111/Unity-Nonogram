@@ -1,5 +1,4 @@
 # Unity-Nonogram
- A simple nonogram in Unity3D, has the ability to create random nonograms of any size.
+ A simple nonogram in Unity3D, currently has the ability to create random nonograms of any size.
  
- Currently only has a script to create a centred grid of any size and keep it scaled on screen.
-
+ Currently can generate a gameboard of any size with a randomized puzzle and generate hints for the puzzle.
