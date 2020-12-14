@@ -211,8 +211,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tile: {fileID: 8570974039177848972, guid: f1f809fb21c1da04b957e6c015fe7913, type: 3}
   num: {fileID: 6039892783365781015, guid: 0b398c6cba410ba41a51c06c0cea9162, type: 3}
-  boardWidth: 5
-  boardHeight: 5
+  boardWidth: 10
+  boardHeight: 10
 --- !u!1 &1978674303
 GameObject:
   m_ObjectHideFlags: 0

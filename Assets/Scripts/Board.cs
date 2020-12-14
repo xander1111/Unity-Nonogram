@@ -11,6 +11,7 @@ public class Board : MonoBehaviour
 
     private float _sqRelScale = 0.0f;
     private float _sqScale = 1.0f;
+    [SerializeField]
     private Tile[] _allTiles;
 
 
@@ -57,6 +58,7 @@ public class Board : MonoBehaviour
 
 
         // sqRelScale gotten from (tile sprite size * scale)
+        // Represents the unit size of a tile
         _sqRelScale = (0.2f * tile.transform.localScale.x);
 
         for (float i = 0; i < boardHeight; i++)
@@ -93,8 +95,8 @@ public class Board : MonoBehaviour
     {
         // Generates the display numbers used for solving the puzzle
 
-        float cornerTileVertDistance = (boardHeight - 1) / 2.0f;
-        float cornerTileHorizDistance = (boardWidth - 1) / 2.0f;
+        float cornerTileVertDistance = (boardHeight - 1) / 2.0f * _sqRelScale;
+        float cornerTileHorizDistance = (boardWidth - 1) / 2.0f * _sqRelScale;
         Vector2 lowerCorner = new Vector2(-cornerTileHorizDistance, -cornerTileVertDistance);
         Vector2 upperCorner = new Vector2(cornerTileHorizDistance, cornerTileVertDistance);
 
@@ -107,8 +109,12 @@ public class Board : MonoBehaviour
             foreach (int solutionNum in FindColumnSolution(lowerCorner.x + (i * _sqRelScale)))
             {
                 Vector2 offsetPos = new Vector2(numColPosition.x, numColPosition.y + (numCount * _sqRelScale));
+
                 Num newNum = Instantiate(num, offsetPos, transform.rotation, this.transform);
+
                 newNum.GetComponent<TMPro.TextMeshPro>().text = solutionNum.ToString();
+                newNum.transform.localScale = new Vector3(_sqRelScale, _sqRelScale, 1);
+
                 numCount++;
             }
         }
@@ -122,8 +128,12 @@ public class Board : MonoBehaviour
             foreach (int solutionNum in FindRowSolution(lowerCorner.y + (i * _sqRelScale)))
             {
                 Vector2 offsetPos = new Vector2(numRowPosition.x - (numCount * _sqRelScale), numRowPosition.y);
+
                 Num newNum = Instantiate(num, offsetPos, transform.rotation, this.transform);
+
                 newNum.GetComponent<TMPro.TextMeshPro>().text = solutionNum.ToString();
+                newNum.transform.localScale = new Vector3(_sqRelScale, _sqRelScale, 1);
+
                 numCount++;
             }
         }
@@ -139,20 +149,20 @@ public class Board : MonoBehaviour
         // Creates a list of all tiles in the specified row
         foreach (Tile tile in _allTiles)
         {
-            if (tile.transform.position.y == rowY)
+            if (Mathf.Approximately(tile.transform.position.y, rowY))
             {
                 rowTiles.Add(tile);
             }
         }
+        // Sorts tiles from right to left, same direction the numbers are created in
         rowTiles.Sort((a, b) => a.transform.position.x.CompareTo(b.transform.position.x));
         rowTiles.Reverse();
-
 
         return FindListSolution(rowTiles);
     }
 
 
-    private List<int> FindColumnSolution(float columnX)
+    private List<int> FindColumnSolution(float colX)
     {
         // Returns the UI shown solution for a specified column
 
@@ -161,11 +171,12 @@ public class Board : MonoBehaviour
         // Creates a list of all tiles in the specified column
         foreach (Tile tile in _allTiles)
         {
-            if (tile.transform.position.x == columnX)
+            if (Mathf.Approximately(tile.transform.position.x, colX))
             {
                 colTiles.Add(tile);
             }
         }
+        // Sorts tiles from bottom to top, same direction the numbers are created in
         colTiles.Sort((a, b) => a.transform.position.y.CompareTo(b.transform.position.y));
 
         return FindListSolution(colTiles);

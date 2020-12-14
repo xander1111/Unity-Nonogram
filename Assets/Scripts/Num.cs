@@ -4,15 +4,5 @@ using UnityEngine;
 
 public class Num : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // Empty class so this object can be instantiated
 }
