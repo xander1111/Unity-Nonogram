@@ -6,16 +6,20 @@ public class Board : MonoBehaviour
 {
     public Tile tile;
     public Num num;
-    public int boardWidth;
-    public int boardHeight;
+
+    private int _boardWidth;
+    private int _boardHeight;
 
     private Tile[] _allTiles;
     // Store tiles in a 2d array so its easy to access specific tiles
     private Tile[,] _board;
 
 
-    void Awake()
+    public void CreateGame(int boardWidth, int boardHeight)
     {
+        _boardWidth = boardWidth;
+        _boardHeight = boardHeight;
+
         _board = new Tile[boardWidth, boardHeight];
 
         CreateBoard();
@@ -44,9 +48,9 @@ public class Board : MonoBehaviour
     private void CreateBoard()
     {
         // Generates rows
-        for (int i = 0; i < boardHeight; i++)
+        for (int i = 0; i < _boardHeight; i++)
         {
-            CreateRow(boardWidth, i);
+            CreateRow(_boardWidth, i);
         }
 
     }
@@ -54,7 +58,7 @@ public class Board : MonoBehaviour
 
     private void GeneratePuzzle()
     {
-        //Generates a random value for solved variable on every tile
+        // Generates a random value for solved variable on every tile
         foreach (Tile tile in _allTiles)
         {
             int solved = Random.Range(0, 2);
@@ -73,7 +77,7 @@ public class Board : MonoBehaviour
     private void GenerateUI()
     {
         // Generate row hints
-        for (int y = 0; y < boardHeight; y++)
+        for (int y = 0; y < _boardHeight; y++)
         {
             List<int> rowSolution = FindRowSolution(y);
 
@@ -87,13 +91,13 @@ public class Board : MonoBehaviour
         }
 
         // Generate column hints
-        for (int x = 0; x < boardHeight; x++)
+        for (int x = 0; x < _boardWidth; x++)
         {
             List<int> colSolution = FindColumnSolution(x);
 
             for (int i = 0; i < colSolution.Count; i++)
             {
-                Vector2 numPosition = new Vector2(x, boardHeight + (i * 0.8f));
+                Vector2 numPosition = new Vector2(x, _boardHeight + (i * 0.8f));
 
                 Num newNum = Instantiate(num, numPosition, transform.rotation, this.transform);
                 newNum.GetComponent<TMPro.TextMeshPro>().text = colSolution[i].ToString();
@@ -108,7 +112,7 @@ public class Board : MonoBehaviour
         List<Tile> rowTiles = new List<Tile>();
    
         // Creates a list of all tiles in the specified row
-        for (int i = 0; i < boardWidth; i++)
+        for (int i = 0; i < _boardWidth; i++)
         {
             rowTiles.Add(_board[i,rowY]);
         }
@@ -126,7 +130,7 @@ public class Board : MonoBehaviour
         List<Tile> colTiles = new List<Tile>();
 
         // Creates a list of all tiles in the specified column
-        for (int i = 0; i < boardWidth; i++)
+        for (int i = 0; i < _boardHeight; i++)
         {
             colTiles.Add(_board[colX, i]);
         }

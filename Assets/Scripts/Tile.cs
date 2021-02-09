@@ -57,24 +57,24 @@ public class Tile : MonoBehaviour
         // In help mode, when the tile is solved, don't let the player change it
         if (State == 0 || !_gm.helpMode)
         {
-            //Checks for left click
+            // Checks for left click
             if (Input.GetMouseButtonDown(0))
             {
-                //Resets the tile if state isnt empty already
+                // Resets the tile if state isnt empty already
                 if (State != 0)
                 {
                     State = 0;
                 }
                 else
-                //Sets the tile state to filled
+                // Sets the tile state to filled
                 {
                     State = 1;
                 }
 
-                //Checks whether the tile has been solved
+                // Checks whether the tile has been solved
                 CheckIfTileSolved(this);
             }
-            //Repeats process for right click
+            // Repeats process for right click
             else if (Input.GetMouseButtonDown(1))
             {
                 if (State != 0)
