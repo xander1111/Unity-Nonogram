@@ -11,13 +11,17 @@ public class GameManager : MonoBehaviour
     public int boardWidth;
     public int boardHeight;
 
+    public float defaultCamSize;
+
+    private Camera _cam;
     private Tile[] _tiles;
     
 
-    private void Start()
+    private void Awake()
     {
         board.CreateGame(boardWidth, boardHeight);
 
+        _cam = Camera.main;
         SetCamera();
 
         _tiles = FindObjectsOfType<Tile>();
@@ -34,7 +38,6 @@ public class GameManager : MonoBehaviour
                 return false;
             }
         }
-
         return true;
     }
 
@@ -55,7 +58,8 @@ public class GameManager : MonoBehaviour
         float centerHeight = boardHeight%2 == 0 ? (boardHeight/2) - 0.5f: boardHeight/2;
 
         Vector3 boardCenter = new Vector3(centerWidth, centerHeight, -10);
-        cam.transform.position = boardCenter;
+
+        _cam.transform.position = boardCenter;
 
         // If the board is wider than the screens aspect ratio, scale by width, otherwise scale by height
 
@@ -66,13 +70,15 @@ public class GameManager : MonoBehaviour
          * the Unity camera scales aspect ratio by adjusting the width of the camera, this is why
          * the width scale uses the aspect ratio while the height doesnt.
          */
-        if (boardWidth/boardHeight >= cam.aspect)
+        if (boardWidth/boardHeight >= _cam.aspect)
         {
-            cam.GetComponent<Camera>().orthographicSize = (boardWidth + 2) / (2 * cam.aspect);
+            _cam.orthographicSize = (boardWidth + 2) / (2 * _cam.aspect);
         }
         else
         {
-            cam.GetComponent<Camera>().orthographicSize = boardHeight * 0.7f;
+            _cam.orthographicSize = boardHeight * 0.7f;
         }
+
+        defaultCamSize = _cam.orthographicSize;
     }
 }
