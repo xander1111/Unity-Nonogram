@@ -6,17 +6,22 @@ public class Board : MonoBehaviour
 {
     public Tile tile;
     public Num num;
-    public int boardWidth;
-    public int boardHeight;
 
-    private float _sqRelScale = 0.0f;
-    private float _sqScale = 1.0f;
-    [SerializeField]
+    private int _boardWidth;
+    private int _boardHeight;
+
     private Tile[] _allTiles;
+    // Store tiles in a 2d array so its easy to access specific tiles
+    private Tile[,] _board;
 
 
-    void Awake()
+    public void CreateGame(int boardWidth, int boardHeight)
     {
+        _boardWidth = boardWidth;
+        _boardHeight = boardHeight;
+
+        _board = new Tile[boardWidth, boardHeight];
+
         CreateBoard();
 
         _allTiles = FindObjectsOfType<Tile>();
@@ -26,56 +31,34 @@ public class Board : MonoBehaviour
     }
 
 
-    private void CreateRow(int tileCount, float rowHorizOffset, float rowVertOffset, float squareScale)
+    private void CreateRow(int tileCount, int rowVertOffset)
     {
-        // Creates a single row of tiles
         for (int i = 0; i < tileCount; i++)
         {
-            float horizPos = (i - rowHorizOffset) * squareScale;
-            float vertPos = rowVertOffset * squareScale;
+            Vector2 tilePosition = new Vector2(i, rowVertOffset);
 
-            Vector2 tilePosition = new Vector2(horizPos, vertPos);
+            Tile newTile = Instantiate(tile, tilePosition, transform.rotation, this.transform);
 
-            Instantiate(tile, tilePosition, transform.rotation, this.transform);
+            _board[i, rowVertOffset] = newTile;
         }
+
     }
 
     
     private void CreateBoard()
     {
-        // Determines whether to scale the board based on vertical or horizontal size
-        // Note: this assumes the display is a sqaure
-        if (boardWidth > boardHeight)
+        // Generates rows
+        for (int i = 0; i < _boardHeight; i++)
         {
-            _sqScale = 25 / boardWidth;
-
+            CreateRow(_boardWidth, i);
         }
-        else
-        {
-            _sqScale = 25 / boardHeight;
-        }
-        tile.transform.localScale = new Vector2(_sqScale, _sqScale);
 
-
-        // sqRelScale gotten from (tile sprite size * scale)
-        // Represents the unit size of a tile
-        _sqRelScale = (0.2f * tile.transform.localScale.x);
-
-        for (float i = 0; i < boardHeight; i++)
-        {
-            // Finds how much to offset the entire board by as it would normally generate the bottom left tile in the middle of the screen
-            float boardVertOffset = (boardHeight - 1) / 2.0f;
-            float boardHorizOffset = (boardWidth - 1) / 2.0f;
-
-            // Creates each row
-            CreateRow(boardWidth, boardHorizOffset, i - boardVertOffset, _sqRelScale);
-        }
     }
 
 
     private void GeneratePuzzle()
     {
-        //Generates a random value for solved variable on every tile
+        // Generates a random value for solved variable on every tile
         foreach (Tile tile in _allTiles)
         {
             int solved = Random.Range(0, 2);
@@ -93,91 +76,64 @@ public class Board : MonoBehaviour
 
     private void GenerateUI()
     {
-        // Generates the display numbers used for solving the puzzle
-
-        float cornerTileVertDistance = (boardHeight - 1) / 2.0f * _sqRelScale;
-        float cornerTileHorizDistance = (boardWidth - 1) / 2.0f * _sqRelScale;
-        Vector2 lowerCorner = new Vector2(-cornerTileHorizDistance, -cornerTileVertDistance);
-        Vector2 upperCorner = new Vector2(cornerTileHorizDistance, cornerTileVertDistance);
-
-        // Columns
-        for (int i = 0; i < boardWidth; i++)
+        // Generate row hints
+        for (int y = 0; y < _boardHeight; y++)
         {
-            Vector2 numColPosition = new Vector2(lowerCorner.x + (i * _sqRelScale), upperCorner.y + _sqRelScale);
-            int numCount = 0;
+            List<int> rowSolution = FindRowSolution(y);
 
-            foreach (int solutionNum in FindColumnSolution(lowerCorner.x + (i * _sqRelScale)))
+            for (int i = 0; i < rowSolution.Count; i++)
             {
-                Vector2 offsetPos = new Vector2(numColPosition.x, numColPosition.y + (numCount * _sqRelScale));
+                Vector2 numPosition = new Vector2(-1 - (i * 0.8f), y);
 
-                Num newNum = Instantiate(num, offsetPos, transform.rotation, this.transform);
-
-                newNum.GetComponent<TMPro.TextMeshPro>().text = solutionNum.ToString();
-                newNum.transform.localScale = new Vector3(_sqRelScale, _sqRelScale, 1);
-
-                numCount++;
+                Num newNum = Instantiate(num, numPosition, transform.rotation, this.transform);
+                newNum.GetComponent<TMPro.TextMeshPro>().text = rowSolution[i].ToString();
             }
         }
 
-        // Rows
-        for (int i = 0; i < boardHeight; i++)
+        // Generate column hints
+        for (int x = 0; x < _boardWidth; x++)
         {
-            Vector2 numRowPosition = new Vector2(lowerCorner.x - _sqRelScale, lowerCorner.y + (i * _sqRelScale));
-            int numCount = 0;
-            
-            foreach (int solutionNum in FindRowSolution(lowerCorner.y + (i * _sqRelScale)))
+            List<int> colSolution = FindColumnSolution(x);
+
+            for (int i = 0; i < colSolution.Count; i++)
             {
-                Vector2 offsetPos = new Vector2(numRowPosition.x - (numCount * _sqRelScale), numRowPosition.y);
+                Vector2 numPosition = new Vector2(x, _boardHeight + (i * 0.8f));
 
-                Num newNum = Instantiate(num, offsetPos, transform.rotation, this.transform);
-
-                newNum.GetComponent<TMPro.TextMeshPro>().text = solutionNum.ToString();
-                newNum.transform.localScale = new Vector3(_sqRelScale, _sqRelScale, 1);
-
-                numCount++;
+                Num newNum = Instantiate(num, numPosition, transform.rotation, this.transform);
+                newNum.GetComponent<TMPro.TextMeshPro>().text = colSolution[i].ToString();
             }
         }
     }
 
 
-    private List<int> FindRowSolution(float rowY)
+    private List<int> FindRowSolution(int rowY)
     {
-        // Returns the UI shown solution for a specified row
-
+        // Returns the hint numbers for a specified row
         List<Tile> rowTiles = new List<Tile>();
    
         // Creates a list of all tiles in the specified row
-        foreach (Tile tile in _allTiles)
+        for (int i = 0; i < _boardWidth; i++)
         {
-            if (Mathf.Approximately(tile.transform.position.y, rowY))
-            {
-                rowTiles.Add(tile);
-            }
+            rowTiles.Add(_board[i,rowY]);
         }
-        // Sorts tiles from right to left, same direction the numbers are created in
-        rowTiles.Sort((a, b) => a.transform.position.x.CompareTo(b.transform.position.x));
+
+        // Order reversed because the UI numbers are generated right to left
         rowTiles.Reverse();
 
         return FindListSolution(rowTiles);
     }
 
 
-    private List<int> FindColumnSolution(float colX)
+    private List<int> FindColumnSolution(int colX)
     {
-        // Returns the UI shown solution for a specified column
-
+        // Returns the hint numbers for a specified column
         List<Tile> colTiles = new List<Tile>();
 
         // Creates a list of all tiles in the specified column
-        foreach (Tile tile in _allTiles)
+        for (int i = 0; i < _boardHeight; i++)
         {
-            if (Mathf.Approximately(tile.transform.position.x, colX))
-            {
-                colTiles.Add(tile);
-            }
+            colTiles.Add(_board[colX, i]);
         }
-        // Sorts tiles from bottom to top, same direction the numbers are created in
-        colTiles.Sort((a, b) => a.transform.position.y.CompareTo(b.transform.position.y));
 
         return FindListSolution(colTiles);
     }
@@ -185,17 +141,21 @@ public class Board : MonoBehaviour
 
     private List<int> FindListSolution(List<Tile> tiles)
     {
+        // Returns a List of numbers to be used as a game hint
         List<int> solution = new List<int>();
         int concurrentTiles = 0;
 
         foreach (Tile tile in tiles)
         {
+            // If the current tiles solved state is 1, add 1 to the block length
             if (tile.solved == 1)
             {
                 concurrentTiles++;
             }
             else
             {
+                // If the current tiles solved state isnt 1 and this tile is at the end of a block,
+                // add the block length to the solution and reset the block length
                 if (concurrentTiles != 0)
                 {
                     solution.Add(concurrentTiles);
@@ -203,11 +163,15 @@ public class Board : MonoBehaviour
                 concurrentTiles = 0;
             }
         }
+
+        // Extra block check incase there is a block at the end of a row/collumn,
+        // this wouldnt be added normally as there is no X tile after it
         if (concurrentTiles != 0)
         {
             solution.Add(concurrentTiles);
         }
 
+        // If there arent any tiles in the row/collumn, add 0 to the solution
         if (solution.Count == 0)
         {
             solution.Add(0);
