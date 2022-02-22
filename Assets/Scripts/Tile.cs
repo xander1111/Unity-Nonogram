@@ -15,8 +15,8 @@ public class Tile : MonoBehaviour
     /*
      *  state ids:
      *   0: empty
-     *  -1: x
-     *  1: filled
+     *  -1: crossed out
+     *   1: filled
      */
     public int State {
         get { return _state; }
